@@ -1,0 +1,43 @@
+# ===== MAXFIY — HECH QACHON GITHUB'GA KETMASIN =====
+.env
+backend/.env
+frontend/.env
+camera_service/.env
+*.env
+
+# ===== Local baza =====
+*.db
+*.db-shm
+*.db-wal
+localdb.db
+
+# ===== Python =====
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# ===== Frontend =====
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+
+# ===== PyCharm =====
+.idea/
+
+# ===== Test skriptlar (ixtiyoriy, GitHub'ga kerak emas) =====
+backend/check*.py
+backend/korish.py
+backend/tekshir.py
+backend/add_kassir_id.py
+backend/migrate_call.py
+backend/rebuild_transfer.py
+backend/create_return_table.py
+
+# ===== Boshqa =====
+*.log
+.DS_Store
+Thumbs.db
