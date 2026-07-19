@@ -1,9 +1,12 @@
 import axios from 'axios'
 
+
+
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000',
+  baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000',
   timeout: 10000,
 })
+
 
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('token')
@@ -243,6 +246,8 @@ export const advancedStatsApi = {
 
 
 
-export const CAMERA_STREAM = 'http://127.0.0.1:9001/stream/cam1'
+//export const CAMERA_STREAM = 'http://127.0.0.1:9001/stream/cam1'
+export const CAMERA_STREAM = import.meta.env.VITE_CAMERA_URL || 'http://127.0.0.1:9001/stream/cam1'
+
 export default api
 
