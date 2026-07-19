@@ -66,6 +66,8 @@ function FullscreenButton() {
     <button
       onClick={toggle}
       title={isFull ? 'Kichiklashtirish' : "To'liq ekran"}
+
+
       style={{
         position: 'fixed',
         bottom: '16px',
@@ -84,6 +86,8 @@ function FullscreenButton() {
         justifyContent: 'center',
         opacity: 0.85,
       }}
+
+
     >
       {isFull ? '⤡' : '⤢'}
     </button>

@@ -40,7 +40,9 @@
 
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { overscroll-behavior: none; height: 100%; }
+
+html, body { overscroll-behavior: none; overscroll-behavior-x: none; height: 100%; width: 100%; overflow-x: hidden; }
+
 body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; -webkit-user-select: none; user-select: none; }
 input, textarea, select { -webkit-user-select: text; user-select: text; }
 
