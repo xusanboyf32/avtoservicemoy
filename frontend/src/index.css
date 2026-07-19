@@ -38,8 +38,12 @@
   --blue-light: #1e3a5f;
 }
 
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+html, body { overscroll-behavior: none; height: 100%; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; -webkit-user-select: none; user-select: none; }
+input, textarea, select { -webkit-user-select: text; user-select: text; }
+
 button { cursor: pointer; font-family: var(--sans); border: none; outline: none; }
 input, select, textarea { font-family: var(--sans); outline: none; }
 ::-webkit-scrollbar { width: 4px; height: 4px; }

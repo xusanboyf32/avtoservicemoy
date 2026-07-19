@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore, useThemeStore } from './store'
 import LoginPage from './pages/LoginPage'
@@ -43,14 +43,65 @@ function HomeRedirect() {
   }
 }
 
+
+
+function FullscreenButton() {
+  const [isFull, setIsFull] = useState(false)
+
+  useEffect(() => {
+    const handler = () => setIsFull(!!document.fullscreenElement)
+    document.addEventListener('fullscreenchange', handler)
+    return () => document.removeEventListener('fullscreenchange', handler)
+  }, [])
+
+  const toggle = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen()
+    } else {
+      document.documentElement.requestFullscreen().catch(() => {})
+    }
+  }
+
+  return (
+    <button
+      onClick={toggle}
+      title={isFull ? 'Kichiklashtirish' : "To'liq ekran"}
+      style={{
+        position: 'fixed',
+        bottom: '16px',
+        right: '16px',
+        zIndex: 99999,
+        width: '46px',
+        height: '46px',
+        borderRadius: '50%',
+        background: isFull ? 'var(--danger)' : 'var(--accent)',
+        color: '#fff',
+        fontSize: '22px',
+        lineHeight: 1,
+        boxShadow: 'var(--shadow-md)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: 0.85,
+      }}
+    >
+      {isFull ? '⤡' : '⤢'}
+    </button>
+  )
+}
+
 export default function App() {
   const dark = useThemeStore(s => s.dark)
+
+
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
   }, [dark])
 
   return (
+    <>
+    <FullscreenButton />
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<HomeRedirect />} />
@@ -91,6 +142,6 @@ export default function App() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-
+    </>
   )
 }
