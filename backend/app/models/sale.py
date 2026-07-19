@@ -42,8 +42,13 @@ class Sale(Base, TimestampMixin):
 
     # Manba: "kassa" yoki "ombor"
     manba = Column(String, default="kassa", nullable=False)
+
+    # Sync: kassadan kelgan savdoning unikal belgisi (dublikatga qarshi)
+    sync_uuid = Column(String, unique=True, nullable=True, index=True)
+
     # Relationshiplar
     kassir = relationship("User", backref="sales")
+
     client = relationship("Client", back_populates="sales")
     items = relationship("SaleItem", back_populates="sale")
     debt = relationship("ClientDebt", back_populates="sale", uselist=False)

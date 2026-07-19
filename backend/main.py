@@ -11,7 +11,7 @@ from app.routers import (
     warehouse_transfer, sale, client_debt,
     daily_stat, kassa_page, camera,
     safe_transaction, kontragent_return,
-    cash_register, advanced_stats
+    cash_register, advanced_stats, sync
 )
 
 from app.routers.printer import router as printer_router
@@ -71,6 +71,8 @@ app.include_router(safe_transaction.router)
 app.include_router(kontragent_return.router)
 app.include_router(cash_register.router)
 app.include_router(advanced_stats.router)
+app.include_router(sync.router)
+
 
 
 app.include_router(printer_router)
