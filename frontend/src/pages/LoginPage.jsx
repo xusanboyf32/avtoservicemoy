@@ -30,14 +30,6 @@ export default function LoginPage() {
       // Foydalanuvchi ma'lumotlarini olish
       const me = await authApi.me()
       setAuth(me.data, token)
-
-      // Login muvaffaqiyatli — to'liq ekranga o'tamiz
-      try {
-        if (!document.fullscreenElement) {
-          await document.documentElement.requestFullscreen()
-        }
-      } catch (e) { /* brauzer ruxsat bermasa — muammo emas */ }
-
       navigate('/')
 
 
