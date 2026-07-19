@@ -14,7 +14,7 @@ def get_base_dir() -> Path:
 class Settings(BaseSettings):
     DATABASE_URL: str
     SECRET_KEY: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 720
     API_HOST: str = "127.0.0.1"
     API_PORT: int = 8000
     CAMERA_IP: str
