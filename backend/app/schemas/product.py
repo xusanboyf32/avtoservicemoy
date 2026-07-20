@@ -24,6 +24,7 @@ class ProductResponseSchema(BaseModel):
     id: int
     name: str
     barcode: Optional[str] = None
+    image_url: Optional[str] = None
     description: Optional[str] = None
     is_active: bool
     category: CategoryResponseSchema

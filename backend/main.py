@@ -11,7 +11,8 @@ from app.routers import (
     warehouse_transfer, sale, client_debt,
     daily_stat, kassa_page, camera,
     safe_transaction, kontragent_return,
-    cash_register, advanced_stats, sync
+    cash_register, advanced_stats, sync,
+    client_portal
 )
 
 from app.routers.printer import router as printer_router
@@ -38,6 +39,23 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+
+
+
+
+
+from fastapi.staticfiles import StaticFiles
+import os
+
+os.makedirs("app/static/products", exist_ok=True)
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+
+
+
+
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -72,7 +90,7 @@ app.include_router(kontragent_return.router)
 app.include_router(cash_register.router)
 app.include_router(advanced_stats.router)
 app.include_router(sync.router)
-
+app.include_router(client_portal.router)
 
 
 app.include_router(printer_router)

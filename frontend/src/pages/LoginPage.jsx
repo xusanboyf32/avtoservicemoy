@@ -1,17 +1,22 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+
 import { useAuthStore, useThemeStore } from '../store'
-import { authApi } from '../api'
+import { authApi, clientPortalApi } from '../api'
 
 export default function LoginPage() {
   const { t, i18n } = useTranslation()
   const { dark, toggle } = useThemeStore()
   const { setAuth } = useAuthStore()
   const navigate = useNavigate()
+
+  const [mode, setMode] = useState('xodim')  // 'xodim' yoki 'mijoz'
   const [form, setForm] = useState({ username: '', password: '' })
+  const [clientForm, setClientForm] = useState({ phone: '', password: '1234' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -47,6 +52,39 @@ export default function LoginPage() {
 
 
 
+
+
+  const handleClientLogin = async (e) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const res = await clientPortalApi.login({
+        phone: clientForm.phone.trim(),
+        password: clientForm.password,
+      })
+      // Mijoz tokenini ALOHIDA saqlaymiz (ishchi tokeni bilan aralashmasin)
+      localStorage.setItem('client_token', res.data.access_token)
+      // Store'ga mijozni "user" sifatida solamiz -> role: client
+      setAuth(
+        {
+          role: 'client',
+          id: res.data.client_id,
+          full_name: res.data.full_name,
+        },
+        res.data.access_token
+      )
+      navigate('/mijoz')
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Telefon yoki parol xato!'
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -73,8 +111,11 @@ export default function LoginPage() {
         <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 2 }}>POS Tizimi</div>
       </div>
 
+
+
+
       {/* Forma */}
-      <form onSubmit={handleLogin} style={{
+      <form onSubmit={mode === 'xodim' ? handleLogin : handleClientLogin} style={{
         background: 'var(--surface)',
         border: '1px solid var(--border)',
         borderRadius: 'var(--radius-lg)',
@@ -89,56 +130,139 @@ export default function LoginPage() {
           {t('login.title')}
         </div>
 
-        {/* Username */}
-        <div>
-          <label style={{ fontSize: 12, color: 'var(--text2)', display: 'block', marginBottom: 5 }}>
-            {t('login.username')}
-          </label>
-          <input
-            type="text"
-            value={form.username}
-            onChange={e => setForm(p => ({ ...p, username: e.target.value }))}
-            required
-            autoFocus
-            autoComplete="username"
+        {/* Xodim / Mijoz tanlovi */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+          <button
+            type="button"
+            onClick={() => { setMode('xodim'); setError('') }}
             style={{
-              width: '100%',
-              padding: '10px 12px',
-              border: '1.5px solid var(--border)',
+              flex: 1,
+              padding: '9px',
               borderRadius: 'var(--radius)',
-              background: 'var(--surface2)',
-              color: 'var(--text)',
+              border: '1.5px solid var(--border)',
+              background: mode === 'xodim' ? 'var(--accent)' : 'var(--surface2)',
+              color: mode === 'xodim' ? '#fff' : 'var(--text)',
+              fontWeight: 700,
               fontSize: 14,
+              cursor: 'pointer',
             }}
-            onFocus={e => e.target.style.borderColor = 'var(--accent)'}
-            onBlur={e => e.target.style.borderColor = 'var(--border)'}
-          />
+          >
+            Xodim
+          </button>
+          <button
+            type="button"
+            onClick={() => { setMode('mijoz'); setError('') }}
+            style={{
+              flex: 1,
+              padding: '9px',
+              borderRadius: 'var(--radius)',
+              border: '1.5px solid var(--border)',
+              background: mode === 'mijoz' ? 'var(--accent)' : 'var(--surface2)',
+              color: mode === 'mijoz' ? '#fff' : 'var(--text)',
+              fontWeight: 700,
+              fontSize: 14,
+              cursor: 'pointer',
+            }}
+          >
+            Mijoz
+          </button>
         </div>
 
-        {/* Parol */}
-        <div>
-          <label style={{ fontSize: 12, color: 'var(--text2)', display: 'block', marginBottom: 5 }}>
-            {t('login.password')}
-          </label>
-          <input
-            type="password"
-            value={form.password}
-            onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
-            required
-            autoComplete="current-password"
-            style={{
-              width: '100%',
-              padding: '10px 12px',
-              border: '1.5px solid var(--border)',
-              borderRadius: 'var(--radius)',
-              background: 'var(--surface2)',
-              color: 'var(--text)',
-              fontSize: 14,
-            }}
-            onFocus={e => e.target.style.borderColor = 'var(--accent)'}
-            onBlur={e => e.target.style.borderColor = 'var(--border)'}
-          />
-        </div>
+
+
+
+
+        {/* XODIM: username + parol */}
+        {mode === 'xodim' && (
+          <>
+            <div>
+              <label style={{ fontSize: 12, color: 'var(--text2)', display: 'block', marginBottom: 5 }}>
+                {t('login.username')}
+              </label>
+              <input
+                type="text"
+                value={form.username}
+                onChange={e => setForm(p => ({ ...p, username: e.target.value }))}
+                required
+                autoFocus
+                autoComplete="username"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1.5px solid var(--border)',
+                  borderRadius: 'var(--radius)',
+                  background: 'var(--surface2)',
+                  color: 'var(--text)',
+                  fontSize: 14,
+                }}
+                onFocus={e => e.target.style.borderColor = 'var(--accent)'}
+                onBlur={e => e.target.style.borderColor = 'var(--border)'}
+              />
+            </div>
+
+            <div>
+              <label style={{ fontSize: 12, color: 'var(--text2)', display: 'block', marginBottom: 5 }}>
+                {t('login.password')}
+              </label>
+              <input
+                type="password"
+                value={form.password}
+                onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
+                required
+                autoComplete="current-password"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1.5px solid var(--border)',
+                  borderRadius: 'var(--radius)',
+                  background: 'var(--surface2)',
+                  color: 'var(--text)',
+                  fontSize: 14,
+                }}
+                onFocus={e => e.target.style.borderColor = 'var(--accent)'}
+                onBlur={e => e.target.style.borderColor = 'var(--border)'}
+              />
+            </div>
+          </>
+        )}
+
+        {/* MIJOZ: faqat telefon (parol default 1234) */}
+        {mode === 'mijoz' && (
+          <div>
+            <label style={{ fontSize: 12, color: 'var(--text2)', display: 'block', marginBottom: 5 }}>
+              Telefon raqamingiz
+            </label>
+            <input
+              type="tel"
+              value={clientForm.phone}
+              onChange={e => setClientForm(p => ({ ...p, phone: e.target.value }))}
+              required
+              autoFocus
+              placeholder="+998 90 123 45 67"
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                border: '1.5px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                background: 'var(--surface2)',
+                color: 'var(--text)',
+                fontSize: 14,
+              }}
+              onFocus={e => e.target.style.borderColor = 'var(--accent)'}
+              onBlur={e => e.target.style.borderColor = 'var(--border)'}
+            />
+            <div style={{ fontSize: 11, color: 'var(--text2)', marginTop: 6 }}>
+              Parol: 1234 (avtomatik)
+            </div>
+          </div>
+        )}
+
+
+
+
+
+
+
 
         {/* Xato */}
         {error && (

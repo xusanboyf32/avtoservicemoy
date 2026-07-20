@@ -5,14 +5,18 @@ import { useAuthStore, useThemeStore } from '../store'
 
 
 
-
 import {
   statsApi, saleApi, incomeApi, clientApi,
   userApi, productApi, categoryApi, brandApi,
   unitApi, kontragentApi, transferApi, paymentApi,
   clientDebtApi, oilRecordApi, batchApi,
-  safeApi, kontragentReturnApi, advancedStatsApi
+  safeApi, kontragentReturnApi, advancedStatsApi,
+  API_BASE
 } from '../api'
+
+
+
+
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
@@ -46,8 +50,12 @@ function Layout({ children }) {
 
 
     { to: '/admin/products', label: 'Mahsulotlar', icon: '🛢️' },
+    { to: '/admin/client-products', label: 'Mijoz mahsulotlari', icon: '🖼️' },
 
     { to: '/admin/kassa-stock', label: 'Kassa uchun stock', icon: '🏪' },
+
+
+
     { to: '/admin/safe', label: 'Admin Sefi', icon: '🗄️' },
     { to: '/admin/categories', label: 'Kategoriyalar', icon: '🏷️' },
 
@@ -1990,6 +1998,101 @@ function ProductsPage() {
 
 
 
+
+
+
+
+// ── Mijoz mahsulotlari (rasm biriktirish) ──────────────
+function ClientProductsPage() {
+  const [products, setProducts] = useState({ items: [], total: 0 })
+  const [search, setSearch] = useState('')
+  const [uploading, setUploading] = useState(null)   // qaysi mahsulot yuklanmoqda
+  const [msg, setMsg] = useState(null)
+  const flash = (text, type = 'success') => { setMsg({ text, type }); setTimeout(() => setMsg(null), 2500) }
+
+  const load = (s = '') => productApi.list({ search: s, page_size: 200 }).then(r => setProducts(r.data)).catch(() => {})
+  useEffect(() => { load() }, [])
+
+  const handleUpload = async (product, fileInput) => {
+    const file = fileInput.files[0]
+    if (!file) return
+    const formData = new FormData()
+    formData.append('file', file)
+    setUploading(product.id)
+    try {
+      await productApi.uploadImage(product.id, formData)
+      flash('✅ Rasm yuklandi!')
+      load(search)
+    } catch (e) {
+      flash(e.response?.data?.detail || 'Xato!', 'error')
+    } finally {
+      setUploading(null)
+      fileInput.value = ''
+    }
+  }
+
+  return (
+    <div style={{ padding: 24 }}>
+      <PageHeader
+        title="🖼️ Mijoz mahsulotlari"
+        onRefresh={() => load(search)}
+      />
+
+      <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '10px 14px', marginBottom: 16, fontSize: 13, color: 'var(--text2)' }}>
+        ℹ️ Bu yerda mahsulotlarga rasm biriktiring. Rasmli mahsulotlar mijoz sahifasida chiroyli ko'rinadi. Narx avtomatik (aktiv partiya narxi).
+      </div>
+
+      <div style={{ marginBottom: 16, maxWidth: 300 }}>
+        <input type="text" placeholder="Nom yoki barcode..."
+          value={search} onChange={e => { setSearch(e.target.value); load(e.target.value) }}
+          style={C.input}
+        />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 14 }}>
+        {products.items.map(p => (
+          <div key={p.id} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 12, textAlign: 'center' }}>
+            {/* Rasm yoki placeholder */}
+            <div style={{ width: '100%', height: 130, borderRadius: 8, background: 'var(--surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', marginBottom: 8 }}>
+              {p.image_url
+                ? <img src={`${API_BASE}${p.image_url}`} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : <span style={{ fontSize: 32, opacity: 0.3 }}>🖼️</span>}
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 600, minHeight: 34 }}>{p.name}</div>
+            <div style={{ fontSize: 11, color: 'var(--text2)', marginBottom: 8 }}>{p.category?.name}</div>
+
+            {/* Yuklash tugmasi */}
+            <label style={{
+              ...C.btnGreen, display: 'block', textAlign: 'center', cursor: 'pointer',
+              fontSize: 12, opacity: uploading === p.id ? 0.6 : 1
+            }}>
+              {uploading === p.id ? 'Yuklanmoqda...' : (p.image_url ? '🔄 Rasmni almashtirish' : '📷 Rasm qo\'shish')}
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                disabled={uploading === p.id}
+                onChange={e => handleUpload(p, e.target)}
+              />
+            </label>
+          </div>
+        ))}
+      </div>
+
+      {products.items.length === 0 && (
+        <div style={{ textAlign: 'center', color: 'var(--text2)', padding: 40 }}>Mahsulot yo'q</div>
+      )}
+
+      {msg && <Toast msg={msg} />}
+    </div>
+  )
+}
+
+
+
+
+
+
 // ── Transferlar ─────────────────────────────────────────
 function TransfersPage() {
   const [transfers, setTransfers] = useState([])
@@ -2861,9 +2964,14 @@ export default function AdminPage() {
         <Route path="/incomes" element={<IncomesPage />} />
         <Route path="/clients" element={<ClientsPage />} />
 
+
+
         <Route path="/products" element={<ProductsPage />} />
+        <Route path="/client-products" element={<ClientProductsPage />} />
 
         <Route path="/kassa-stock" element={<AdminKassaStockPage />} />
+
+
         <Route path="/safe" element={<SafePage />} />
         <Route path="/categories" element={<CategoriesPage />} />
 

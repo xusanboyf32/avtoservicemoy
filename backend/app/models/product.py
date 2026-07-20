@@ -10,6 +10,8 @@ class Product(Base, TimestampMixin):
     name = Column(String, index=True, nullable=False)
     barcode = Column(String, unique=True, index=True, nullable=True)
     description = Column(String, nullable=True)
+    image_url = Column(String, nullable=True)   # mijoz sahifasi uchun rasm yo'li
+
 
     # Bog'liqliklar
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)

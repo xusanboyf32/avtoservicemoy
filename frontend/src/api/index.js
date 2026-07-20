@@ -35,12 +35,14 @@ export const authApi = {
 
 
 
-
 export const productApi = {
   list: p => api.get('/products/', { params: p }),
   create: d => api.post('/products/', d),
   update: (id, d) => api.put(`/products/${id}`, d),
   delete: id => api.delete(`/products/${id}`),
+  uploadImage: (id, formData) => api.post(`/products/${id}/image`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
 }
 
 
@@ -133,6 +135,7 @@ export const statsApi = {
   monthly: () => api.get('/stats/monthly'),
 }
 
+
 export const kassaPageApi = {
   list: () => api.get('/kassa-pages/'),
   detail: n => api.get(`/kassa-pages/${n}`),
@@ -140,6 +143,11 @@ export const kassaPageApi = {
   clear: n => api.delete(`/kassa-pages/${n}/clear`),
 }
 
+
+export const syncApi = {
+  ping: () => api.post('/sync/ping'),
+  jonat: () => api.post('/sync/jonat'),
+}
 
 
 export const kontragentApi = {
@@ -250,4 +258,31 @@ export const advancedStatsApi = {
 export const CAMERA_STREAM = import.meta.env.VITE_CAMERA_URL || 'http://127.0.0.1:9001/stream/cam1'
 
 export default api
+
+
+
+export const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+
+
+
+
+// ---------- MIJOZ PORTALI ----------
+// Diqqat: mijoz login qilganda token 'token' emas, 'client_token' da saqlanadi
+const clientHeader = () => {
+  const t = localStorage.getItem('client_token')
+  return t ? { Authorization: `Bearer ${t}` } : {}
+}
+
+
+
+
+export const clientPortalApi = {
+  login: (data) => api.post('/client/login', data),
+  me: () => api.get('/client/me', { headers: clientHeader() }),
+  debts: () => api.get('/client/debts', { headers: clientHeader() }),
+  categories: () => api.get('/client/categories', { headers: clientHeader() }),
+  products: () => api.get('/client/products', { headers: clientHeader() }),
+  oilRecords: () => api.get('/client/oil-records', { headers: clientHeader() }),
+}
+
 

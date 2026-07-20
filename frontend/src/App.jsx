@@ -8,6 +8,8 @@ import WarehousePage from './pages/WarehousePage'
 import OperatorPage from './pages/OperatorPage'
 import KontragentPage from './pages/KontragentPage'
 import BuxgalterPage from './pages/BuxgalterPage'
+import MijozPage from './pages/MijozPage'
+
 
 
 
@@ -35,8 +37,11 @@ function HomeRedirect() {
       return <Navigate to="/operator" replace />
     case 'kontragent':
       return <Navigate to="/kontragent" replace />
+
     case 'buxgalter':
       return <Navigate to="/buxgalter" replace />
+    case 'client':
+      return <Navigate to="/mijoz" replace />
     default:
       return <Navigate to="/kassa" replace />
 
@@ -143,8 +148,16 @@ export default function App() {
         </ProtectedRoute>
       } />
 
+      <Route path="/mijoz" element={
+        <ProtectedRoute roles={['client']}>
+          <MijozPage />
+        </ProtectedRoute>
+      } />
+
 
       <Route path="*" element={<Navigate to="/" replace />} />
+
+
     </Routes>
     </>
   )
